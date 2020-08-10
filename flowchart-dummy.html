@@ -1,0 +1,245 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .flowchart ul {
+            padding-top: 20px;
+            position: relative;
+
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+
+        .flowchart li {
+            float: left;
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+
+        .flowchart li::before,
+        .flowchart li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 1px solid #ccc;
+            width: 50%;
+            height: 20px;
+        }
+
+        .flowchart li::after {
+            right: auto;
+            left: 50%;
+            border-left: 1px solid #ccc;
+        }
+
+        .flowchart li:only-child::after,
+        .flowchart li:only-child::before {
+            display: none;
+        }
+
+        .flowchart li:only-child {
+            padding-top: 0;
+        }
+
+        .flowchart li:first-child::before,
+        .flowchart li:last-child::after {
+            border: 0 none;
+        }
+
+        .flowchart li:last-child::before {
+            border-right: 1px solid #ccc;
+            border-radius: 0 5px 0 0;
+            -webkit-border-radius: 0 5px 0 0;
+            -moz-border-radius: 0 5px 0 0;
+        }
+
+        .flowchart li:first-child::after {
+            border-radius: 5px 0 0 0;
+            -webkit-border-radius: 5px 0 0 0;
+            -moz-border-radius: 5px 0 0 0;
+        }
+
+        .flowchart ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 1px solid #ccc;
+            width: 0;
+            height: 20px;
+        }
+
+        .flowchart li div {
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: #666;
+            font-family: arial, verdana, tahoma;
+            font-size: 11px;
+            display: inline-block;
+
+            border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+
+        .add-btn-cls {
+            border: 1px solid #ccc;
+            padding: 5px 7px !important;
+            border-radius: 28px;
+            text-decoration: none;
+            color: #666;
+            font-family: arial, verdana, tahoma;
+            font-size: 11px;
+            display: inline-block;
+            border-radius: 20px !important;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .fa-trash-o{
+            font-size: 13px;
+            color: #fff;
+            border: 1px solid;
+            border-radius: 11px;
+            padding: 3px;
+            position: absolute;
+            background: red;
+            margin-left: 4px;
+            margin-top: -14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flowchart" style="margin-left: 45%;">
+        <ul>
+            <li>
+                <div id="start-div">Start</div>
+                
+                <ul>
+                    <li id="start">
+                        <div class="add-btn-cls" onclick="getParent('start')" data-toggle="modal" data-target="#addNew">
+                            <i id="addBtn" class="fa fa-plus"></i>
+                        </div>
+                    </li>
+
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- modal for adding new elements -->
+    <div class="modal fade" id="addNew" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add New Elements</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="value1" placeholder="Left Child">
+                    <br />
+                    <input type="text" class="form-control" id="value2" placeholder="Right Child">
+
+                </div>
+                <div class="modal-footer">
+                    <input type="text" class="btn btn-primary" onclick="addNew()" value="Add" style="width: 65px;">
+                    <button type="button" id="closeModal" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- modal ends -->
+    <script>
+        var flowchartObj = {
+            "start": []
+        }
+        var clickKey = "";
+        function getParent(key) {
+            clickKey = key;
+        }
+        function addNew() {
+            var left_value = document.getElementById('value1').value;
+            var right_value = document.getElementById('value2').value;
+            flowchartObj[clickKey] = [];
+            if (right_value != "" && right_value != undefined) {
+                flowchartObj[clickKey].push(right_value);
+            }
+            if (left_value != "" && left_value != undefined) {
+                flowchartObj[clickKey].push(left_value)
+            }
+            refreshFlowchart();
+        }
+
+        function refreshFlowchart() {
+            var inner = document.getElementById(clickKey).innerHTML;
+            var tempHTML = "";
+
+            tempHTML = "";
+            for (var i = 0; i < flowchartObj[clickKey].length; i++) {
+                tempHTML += `<li  id="`+ flowchartObj[clickKey][i] + `-main-block">
+                                    <div onmouseenter="showDelete('`+ flowchartObj[clickKey][i]+ `')" 
+                                    onmouseleave="removeDelete('`+ flowchartObj[clickKey][i] + `')" 
+                                    id="`+ flowchartObj[clickKey][i] + `-div">`+ flowchartObj[clickKey][i] + `</div>
+                                    <ul >
+                                        <li id="`+ flowchartObj[clickKey][i] + `">
+                                            <div class="add-btn-cls" onclick="getParent('`+ flowchartObj[clickKey][i] + `')" data-toggle="modal" data-target="#addNew">
+                                                <i id="addBtn" class="fa fa-plus"></i>
+                                            </div>
+                                        </li>
+                                        
+                                    </ul>
+                                </li>`
+            }
+            // console.log(tempHTML);
+            document.getElementById(clickKey).innerHTML = tempHTML;
+            document.getElementById('value1').value = "";
+            document.getElementById('value2').value = "";
+            document.getElementById('closeModal').click();
+
+        }
+
+        function showDelete(elementID){
+            var deleteIconHtml = `<i onclick="removeElement('`+elementID+`')" class="fa fa-trash-o"></i>`;
+            document.getElementById(elementID+"-div").innerHTML += deleteIconHtml;
+        }
+
+        function removeDelete(elementID){
+            document.getElementById(elementID+"-div").innerHTML = elementID;
+        }
+
+        function removeElement(elementID){
+            document.getElementById(elementID + '-main-block').innerHTML = "";
+        }
+
+    </script>
+</body>
+
+
+</html>
